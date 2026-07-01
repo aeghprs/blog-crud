@@ -3,19 +3,44 @@ import { Request, Response, NextFunction } from "express";
 
 export const validateRequest =
   (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.body = schema.parse(req.body);
-      next();
-    } catch (error: any) {
+    if (
+      req.body === undefined ||
+      req.body === null ||
+      (typeof req.body === "object" && Object.keys(req.body).length === 0)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Validation failed",
-        errors: error.errors?.map((err: any) => ({
-          field: err.path.join("."),
+        errors: [
+          {
+            field: "body",
+            message: "Request body is required",
+          },
+        ],
+      });
+    }
+
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: result.error.errors.map((err) => ({
+          field: err.path.length > 0 ? err.path.join(".") : "body",
           message: err.message,
         })),
       });
     }
+
+    Object.defineProperty(req, "body", {
+      value: result.data,
+      configurable: true,
+      enumerable: true,
+      writable: true,
+    });
+
+    next();
   };
 
 export const validateQuery =
