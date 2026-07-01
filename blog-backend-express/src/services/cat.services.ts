@@ -5,21 +5,27 @@ import { PaginatedResponse } from "@/types/pagination.types";
 class CategoryService {
   public async registerCategory(
     categoryData: IRegisterCategory,
+    userId: number,
   ): Promise<IRegisterCategory & { id: number }> {
     const sql = `
       INSERT INTO categories 
-      (name, description)
-      VALUES ($1, $2)
+      (user_id, name, description)
+      VALUES ($1, $2, $3)
       RETURNING id
     `;
 
     const result = await queryOne<{ id: number }>(sql, [
+      userId,
       categoryData.name,
       categoryData.description,
     ]);
 
+    if (!result) {
+      throw new Error("Failed to register category: DB did not return an ID.");
+    }
+
     return {
-      id: result!.id,
+      id: result.id,
       ...categoryData,
     };
   }
@@ -27,18 +33,26 @@ class CategoryService {
   public async getAllCategories(
     page: number,
     limit: number,
-  ): Promise<PaginatedResponse<{ id: number; name: string; description: string }>> {
+    userId: number,
+  ): Promise<
+    PaginatedResponse<{ id: number; name: string; description: string }>
+  > {
     const offset = (page - 1) * limit;
 
     const countResult = await queryOne<{ total: string }>(
-      "SELECT COUNT(*) as total FROM categories",
+      "SELECT COUNT(*) as total FROM categories WHERE user_id = $1",
+      [userId],
     );
 
     const total = Number(countResult?.total ?? 0);
 
-    const categories = await query<{ id: number; name: string; description: string }>(
-      `SELECT id, name, description FROM categories ORDER BY id DESC LIMIT $1 OFFSET $2`,
-      [limit, offset],
+    const categories = await query<{
+      id: number;
+      name: string;
+      description: string;
+    }>(
+      `SELECT id, name, description FROM categories where user_id = $3 ORDER BY id DESC LIMIT $1 OFFSET $2`,
+      [limit, offset, userId],
     );
 
     return {
@@ -67,6 +81,7 @@ class CategoryService {
   public async updateCategory(
     id: string,
     data: IUpdateCategory,
+    userId: number,
   ): Promise<{
     id: number;
     name: string;
@@ -74,7 +89,7 @@ class CategoryService {
   } | null> {
     const existingCategory = await queryOne<{
       id: number;
-    }>("SELECT id FROM categories WHERE id = $1", [id]);
+    }>("SELECT id FROM categories WHERE id = $1 AND user_id = $2", [id, userId]);
     if (!existingCategory) return null;
 
     const updates: string[] = [];
@@ -101,13 +116,13 @@ class CategoryService {
     return this.getCategoryById(id);
   }
 
-  public async deleteCategory(id: string): Promise<boolean> {
+  public async deleteCategory(id: string, userId: number): Promise<boolean> {
     const existingCategory = await queryOne<{
       id: number;
-    }>(
-      "SELECT id FROM categories WHERE id = $1",
-      [id],
-    );
+    }>("SELECT id FROM categories WHERE id = $1 AND user_id = $2", [
+      id,
+      userId,
+    ]);
     if (!existingCategory) return false;
 
     await query("DELETE FROM categories WHERE id = $1", [id]);

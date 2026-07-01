@@ -3,15 +3,24 @@ import { Request, Response } from "express";
 import { IRegisterCategory, IUpdateCategory } from "@/schemas/cat.schemas";
 
 import CategoryService from "@/services/cat.services";
+import { AuthRequest } from "./auth.controller";
 
 const categoryService = new CategoryService();
 
 class CategoryController {
-  public async registerCategory(req: Request, res: Response) {
+  public async registerCategory(req: AuthRequest, res: Response) {
     try {
       const categoryData: IRegisterCategory = req.body;
+      const userData = req.user;
 
-      const category = await categoryService.registerCategory(categoryData);
+      if (!userData) {
+        throw new Error();
+      }
+
+      const category = await categoryService.registerCategory(
+        categoryData,
+        userData.id,
+      );
 
       res.status(201).json({
         success: true,
@@ -26,12 +35,21 @@ class CategoryController {
     }
   }
 
-  public async getAllCategories(req: Request, res: Response) {
+  public async getAllCategories(req: AuthRequest, res: Response) {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const userData = req.user;
 
-      const result = await categoryService.getAllCategories(page, limit);
+      if (!userData) {
+        throw new Error();
+      }
+
+      const result = await categoryService.getAllCategories(
+        page,
+        limit,
+        userData.id,
+      );
 
       res.status(200).json({
         success: true,
@@ -46,7 +64,7 @@ class CategoryController {
     }
   }
 
-  public async getCategory(req: Request, res: Response) {
+  public async getCategory(req: AuthRequest, res: Response) {
     try {
       const categoryId = Array.isArray(req.params.id)
         ? req.params.id[0]
@@ -67,23 +85,28 @@ class CategoryController {
     }
   }
 
-  public async updateCategory(req: Request, res: Response) {
+  public async updateCategory(req: AuthRequest, res: Response) {
     try {
       const categoryId = Array.isArray(req.params.id)
         ? req.params.id[0]
         : req.params.id;
+
+      const userData = req.user;
+
+      if (!userData) {
+        throw new Error();
+      }
       const updateData: IUpdateCategory = req.body;
       const category = await categoryService.updateCategory(
         categoryId,
         updateData,
+        userData.id,
       );
       if (!category)
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: "Category not found or no updates",
-          });
+        return res.status(404).json({
+          success: false,
+          message: "Category not found or no updates",
+        });
 
       res.status(200).json({
         success: true,
@@ -99,12 +122,21 @@ class CategoryController {
     }
   }
 
-  public async deleteCategory(req: Request, res: Response) {
+  public async deleteCategory(req: AuthRequest, res: Response) {
     try {
       const categoryId = Array.isArray(req.params.id)
         ? req.params.id[0]
         : req.params.id;
-      const success = await categoryService.deleteCategory(categoryId);
+      const userData = req.user;
+
+      if (!userData) {
+        throw new Error();
+      }
+
+      const success = await categoryService.deleteCategory(
+        categoryId,
+        userData.id,
+      );
       if (!success)
         return res
           .status(404)
