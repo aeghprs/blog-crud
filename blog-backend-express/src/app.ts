@@ -21,8 +21,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/categories", categoryRoutes);
 app.use("/blogs", blogRoutes);
+app.use("/categories", categoryRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
