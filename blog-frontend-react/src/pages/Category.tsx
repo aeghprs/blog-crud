@@ -1,12 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  ChevronLeft,
-  ChevronRight,
-  FolderOpen,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { FolderOpen, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -14,10 +7,13 @@ import { deleteCategory, fetchCategories } from "api/cat.api";
 
 import { CategoryModal } from "components/Category/CategoryModal";
 import ConfirmDialog from "components/Shared/CofirmationDialog";
+import { PaginationBar } from "components/Shared/PaginationBar";
 import { Button } from "components/ui";
 import Loader from "components/ui/Loader";
 
 import queryClient from "constants/queryClient";
+
+import { usePagination } from "hook/usePagination";
 
 import { toast } from "store/toastStore";
 
@@ -29,6 +25,8 @@ const Category = () => {
   const [modalOpen, setModalOpen] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<CategoryData | null>(null);
 
+  const { limit, page, setPage } = usePagination();
+
   const openCreateModal = (modalType: string) => {
     setSelectedItem(null);
     setModalOpen(modalType);
@@ -36,7 +34,7 @@ const Category = () => {
 
   const openEditModal = (category: CategoryData) => {
     setSelectedItem(category);
-    setModalOpen('edit');
+    setModalOpen("edit");
   };
 
   const closeModal = () => {
@@ -61,9 +59,6 @@ const Category = () => {
 
     mutate(selectedItem.id);
   };
-
-  const [limit] = useState(10);
-  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
     queryKey: ["categories", page, limit],
@@ -169,33 +164,11 @@ const Category = () => {
         </div>
       )}
 
-      <div className="mt-6 flex items-center justify-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          type="button"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          className="rounded-full p-2 text-ink-500 hover:bg-ink-200/60 disabled:opacity-30 dark:text-ink-400 dark:hover:bg-ink-800"
-          aria-label="Previous page"
-        >
-          <ChevronLeft size={18} />
-        </Button>
-        <span className="font-mono text-xs text-ink-500 dark:text-ink-400">
-          Page {page} of {pagination.totalPages}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          type="button"
-          onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-          disabled={page === pagination.totalPages}
-          className="rounded-full p-2 text-ink-500 hover:bg-ink-200/60 disabled:opacity-30 dark:text-ink-400 dark:hover:bg-ink-800"
-          aria-label="Next page"
-        >
-          <ChevronRight size={18} />
-        </Button>
-      </div>
+      <PaginationBar
+        page={page}
+        setPage={setPage}
+        totalPages={pagination.totalPages}
+      />
       <Link
         to="/posts/new"
         className="text-underline text-xs hover:text-clay-500"
