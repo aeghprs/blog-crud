@@ -21,10 +21,10 @@ import { getErrorMessage } from "utils/errorHandler";
 const Dashboard = () => {
   const { user } = useAuthStore();
   const [pendingDelete, setPendingDelete] = useState<PostListItem | null>(null);
-  const { limit, page, setPage } = usePagination();
+  const { limit, page, setPage, searchQuery, setSearchQuery } = usePagination();
 
   const { data: postsData, isLoading: isPostsLoading } = useQuery({
-    queryKey: ["posts", page, limit],
+    queryKey: ["posts", page, limit, searchQuery],
     queryFn: fetchBlogs,
   });
 
@@ -69,6 +69,8 @@ const Dashboard = () => {
         page={page}
         setPage={setPage}
         totalPages={postsData.pagination.totalPages}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
 
       <ConfirmDialog

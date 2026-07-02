@@ -5,18 +5,18 @@ import api from "api/api";
 
 import type { PostFormValues } from "types/types";
 
-export const getBlogs = async (page: number = 1, limit: number = 10) => {
-  const response = await api.get(`blogs?page=${page}&limit=${limit}`);
+export const getBlogs = async (page: number = 1, limit: number = 10, searchQuery: string = "") => {
+  const response = await api.get(`blogs?page=${page}&limit=${limit}&search=${searchQuery}`);
   return response.data;
 };
 
 export const fetchBlogs = ({
   queryKey,
 }: {
-  queryKey: [string, number, number];
+  queryKey: [string, number, number, string];
 }) => {
-  const [, page, limit] = queryKey;
-  return getBlogs(page, limit);
+  const [, page, limit, searchQuery] = queryKey;
+  return getBlogs(page, limit, searchQuery);
 };
 
 export const createNewBlog = async (data: PostFormValues) => {
@@ -46,15 +46,15 @@ export const getBlogPostById = async (id: number) => {
 export const fetchAllBlogs = ({
   queryKey,
 }: {
-  queryKey: [string, number, number];
+  queryKey: [string, number, number, string];
 }) => {
-  const [, page, limit] = queryKey;
-  return getAllBlogPostById(page, limit);
+  const [, page, limit, searchQuery] = queryKey;
+  return getAllBlogPostById(page, limit, searchQuery);
 };
 
-export const getAllBlogPostById = async (page: number, limit: number) => {
+export const getAllBlogPostById = async (page: number, limit: number, searchQuery: string) => {
   const response = await axios.get(
-    `${BASE_URL}/blogs/all??page=${page}&limit=${limit}`,
+    `${BASE_URL}/blogs/all??page=${page}&limit=${limit}&search=${searchQuery}`,
   );
 
   return response.data;

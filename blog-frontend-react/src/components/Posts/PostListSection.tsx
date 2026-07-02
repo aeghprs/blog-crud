@@ -1,9 +1,11 @@
 import { FileQuestion, Search } from "lucide-react";
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { PaginationBar } from "components/Shared/PaginationBar";
 
 import PostCard from "components/Posts/PostCard";
+
+import { useDebounced } from "hook/useDebounce";
 
 import type { PostListItem } from "types/types";
 
@@ -14,6 +16,8 @@ interface PostListSectionProps {
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
   totalPages: number;
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
 }
 
 const PostListSection = ({
@@ -23,31 +27,27 @@ const PostListSection = ({
   page,
   setPage,
   totalPages,
+  searchQuery,
+  setSearchQuery,
 }: PostListSectionProps) => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchQuery);
 
-  const filteredPosts = useMemo(() => {
-    const normalizedQuery = search.trim().toLowerCase();
+  useEffect(() => {
+    setSearch(searchQuery);
+  }, [searchQuery]);
 
-    return posts.filter((post) => {
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        post.title.toLowerCase().includes(normalizedQuery) ||
-        post.excerpt.toLowerCase().includes(normalizedQuery) ||
-        post.category_name.toLowerCase().includes(normalizedQuery) ||
-        post.user_name.toLowerCase().includes(normalizedQuery);
-
-      return matchesQuery;
-    });
-  }, [posts, search,]);
+  const debouncedSearch = useDebounced<string>((value) => {
+    setSearchQuery(value);
+    setPage(1);
+  }, 500);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
+    debouncedSearch(value);
   };
 
   const emptyMessage =
-    filteredPosts.length === 0 && (search)
+    posts.length === 0 && search
       ? `Nothing matches "${search}".`
       : "No posts of your own yet — write the first one.";
 
@@ -68,7 +68,7 @@ const PostListSection = ({
         </div>
       </div>
 
-      {filteredPosts.length === 0 ? (
+      {posts.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-ink-300 py-16 text-center dark:border-ink-700">
           <FileQuestion className="text-ink-400" size={28} />
           <p className="text-sm text-ink-500 dark:text-ink-400">
@@ -77,7 +77,7 @@ const PostListSection = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredPosts.map((post) => (
+          {posts.map((post) => (
             <PostCard
               key={post.id}
               post={post}

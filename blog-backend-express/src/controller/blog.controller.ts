@@ -39,6 +39,8 @@ class BlogPostController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const searchQuery = (req.query.search as string) || "";
+
       const userData = req.user;
 
       if (!userData) {
@@ -51,6 +53,7 @@ class BlogPostController {
       const result = await blogPostService.getAllBlogPosts(
         page,
         limit,
+        searchQuery,
         userData.id,
       );
 
@@ -72,8 +75,9 @@ class BlogPostController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const searchQuery = (req.query.search as string) || "";
 
-      const result = await blogPostService.getAllBlogPosts(page, limit);
+      const result = await blogPostService.getAllBlogPosts(page, limit, searchQuery);
 
       res.status(200).json({
         success: true,

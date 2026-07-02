@@ -57,12 +57,19 @@ class BlogPostService {
   public async getAllBlogPosts(
     page: number,
     limit: number,
+    searchQuery: string,
     userId?: number,
   ): Promise<PaginatedResponse<BlogPost>> {
     const offset = (page - 1) * limit;
 
-    const whereClause = userId ? "WHERE p.user_id = $1" : "";
-    const countParams = userId ? [userId] : [];
+    let whereClause = userId ? "WHERE p.user_id = $1" : "";
+    let countParams: (string | number)[] = userId ? [userId] : [];
+
+    if (searchQuery) {
+      whereClause += whereClause ? " AND" : "WHERE";
+      whereClause += " (p.title ILIKE $2 OR p.content ILIKE $2)";
+      countParams = userId ? [userId, `%${searchQuery}%`] : [`%${searchQuery}%`];
+    }
 
     const countResult = await queryOne<{ total: string }>(
       `SELECT COUNT(*) AS total
@@ -73,7 +80,11 @@ class BlogPostService {
 
     const total = Number(countResult?.total ?? 0);
 
-    const dataParams = userId ? [userId, limit, offset] : [limit, offset];
+    let dataParams: (string | number)[] = userId ? [userId, limit, offset] : [limit, offset];
+
+    if (searchQuery) {
+      dataParams = userId ? [userId, `%${searchQuery}%`, limit, offset] : [`%${searchQuery}%`, limit, offset];
+    }
 
     const posts = await query<BlogPost>(
       `
