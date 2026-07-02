@@ -21,7 +21,7 @@ export default function Home() {
         Marginalia
       </h1>
       <p className="mt-5 max-w-lg text-balance text-ink-600 dark:text-ink-400">
-        publish, and revise posts in a simple space built for writing — no
+        Publish, and revise posts in a simple space built for writing — no
         distractions, just your words and the margin around them.
       </p>
       <div className="mt-8 flex gap-3">
