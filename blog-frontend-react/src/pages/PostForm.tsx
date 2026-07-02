@@ -125,7 +125,7 @@ export default function PostForm() {
         {isEdit ? "Edit post" : "New post"}
       </p>
       <h1 className="mb-8 font-display text-3xl font-semibold text-ink-900 dark:text-ink-50">
-        {isEdit ? "Refine your draft" : "Write something new"}
+        {isEdit ? "Refine your post" : "Write something new"}
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
