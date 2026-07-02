@@ -25,7 +25,7 @@ router.use(verifyJWT);
 router.get(
   "/",
   validateQuery(paginationQuerySchema),
-  blogController.getAllBlogPosts,
+  blogController.getAllBlogPostsByID,
 );
 
 router.get("/:id", blogController.getBlogPost);
