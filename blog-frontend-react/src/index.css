@@ -59,3 +59,69 @@ body {
 .animate-slide-in {
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+.ProseMirror h1 {
+  @apply font-display text-2xl font-semibold mt-6 mb-3;
+}
+
+.ProseMirror h2 {
+  @apply font-display text-xl font-semibold mt-6 mb-3;
+}
+
+.ProseMirror h3 {
+  @apply font-display text-lg font-semibold mt-6 mb-3;
+}
+
+.ProseMirror {
+  min-height: 12rem;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #94a3b8;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror blockquote {
+  @apply border-l-2 border-clay-400 pl-4 my-4 italic text-ink-600 dark:text-ink-300;
+}
+
+.ProseMirror blockquote p {
+  @apply mb-0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  @apply my-4 ml-6;
+}
+
+.ProseMirror ul {
+  @apply list-disc;
+}
+
+.ProseMirror ol {
+  @apply list-decimal;
+}
+
+.ProseMirror li {
+  @apply mb-1.5 pl-1;
+}
+
+.ProseMirror li p {
+  @apply mb-0;
+}
+
+/* Nested lists need their own list-style, Tiptap doesn't add it by default */
+.ProseMirror ul ul {
+  @apply list-[circle];
+}
+
+.ProseMirror ul ul ul {
+  @apply list-[square];
+}
+
+.ProseMirror ol ol {
+  @apply list-[lower-alpha];
+}

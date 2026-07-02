@@ -10,6 +10,7 @@ import Home from "pages/Home";
 import Login from "pages/Login";
 import NotFound from "pages/NotFound";
 import Posts from "pages/Posts";
+import PostDetails from "pages/PostDetails";
 import Register from "pages/Register";
 
 import { useThemeStore } from "store/themeStore";
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/posts" element={<Posts />} />
+        <Route path="/posts/:id" element={<PostDetails />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
