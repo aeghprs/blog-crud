@@ -7,6 +7,17 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    "paths": {
+      "hook/*": ["./src/hook/*"],
+      "components/*": ["./src/components/*"],
+      "pages/*": ["./src/pages/*"],
+      "utils/*": ["./src/utils/*"],
+      "constants/*": ["./src/constants/*"],
+      "api/*": ["./src/api/*"],
+      "types/*": ["./src/types/*"],
+      "schema/*": ["./src/schema/*"],
+      "store/*": ["./src/store/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
