@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import authRoutes from "@/routes/auth.routes";
+import categoryRoutes from "@/routes/cat.routes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/category", categoryRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

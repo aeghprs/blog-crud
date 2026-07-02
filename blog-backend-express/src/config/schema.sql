@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Categories Table 
 CREATE TABLE IF NOT EXISTS categories (
     id          SERIAL PRIMARY KEY,
+    user_id     INTEGER       NULL REFERENCES users(id)      ON DELETE SET NULL,
     name        VARCHAR(100)  NOT NULL,
     description TEXT          NULL,
     created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
