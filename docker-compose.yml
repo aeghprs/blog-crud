@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blog-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: blogdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./blog-backend-express
+    container_name: blog-backend
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: blogdb
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build:
+      context: ./blog-frontend-react
+      args:
+        VITE_API_URL: http://localhost:3001
+    container_name: blog-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres-data:
