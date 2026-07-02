@@ -14,7 +14,8 @@ export const PaginationBar = ({
   setPage,
   totalPages,
 }: PaginationBarProps) => {
-  console.log(page, totalPages);
+  if (!totalPages) return null;
+  
   return (
     <div className="mt-8 flex items-center justify-center gap-3">
       <Button

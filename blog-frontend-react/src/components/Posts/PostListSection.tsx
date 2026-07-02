@@ -49,7 +49,7 @@ const PostListSection = ({
   const emptyMessage =
     filteredPosts.length === 0 && (search)
       ? `Nothing matches "${search}".`
-      : "No posts yet — write the first one.";
+      : "No posts of your own yet — write the first one.";
 
   return (
     <div>
