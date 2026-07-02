@@ -5,6 +5,7 @@ import Navbar from "components/Navbar/Navbar";
 import ProtectedRoute from "components/Shared/ProtectedRoute";
 import Toaster from "components/ui/Toaster";
 
+import Category from "pages/Category";
 import Dashboard from "pages/Dashboard";
 import Home from "pages/Home";
 import Login from "pages/Login";
@@ -36,6 +37,7 @@ export default function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/category" element={<Category />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
