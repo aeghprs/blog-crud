@@ -33,3 +33,19 @@ export interface User {
   email: string;
   phone: string;
 }
+
+export interface CategoryData {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface PostListItem {
+  id: number;
+  title: string;
+  excerpt: string;
+  category_name: string;
+  user_id: number;
+  user_name: string;
+  created_at: string;
+}
