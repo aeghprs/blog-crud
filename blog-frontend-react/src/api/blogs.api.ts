@@ -6,7 +6,8 @@ import api from "api/api";
 import type { PostFormValues } from "types/types";
 
 export const getBlogs = async (page: number = 1, limit: number = 10, searchQuery: string = "") => {
-  const response = await api.get(`blogs?page=${page}&limit=${limit}&search=${searchQuery}`);
+  const query = `blogs?page=${page}&limit=${limit}${searchQuery ? `&search=${searchQuery}` : ""}`;
+  const response = await api.get(query);
   return response.data;
 };
 
@@ -53,9 +54,8 @@ export const fetchAllBlogs = ({
 };
 
 export const getAllBlogPostById = async (page: number, limit: number, searchQuery: string) => {
-  const response = await axios.get(
-    `${BASE_URL}/blogs/all??page=${page}&limit=${limit}&search=${searchQuery}`,
-  );
+  const query = `${BASE_URL}/blogs/all?page=${page}&limit=${limit}${searchQuery ? `&search=${searchQuery}` : ""}`;
+  const response = await axios.get(query);
 
   return response.data;
 };

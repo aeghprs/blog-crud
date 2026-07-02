@@ -62,51 +62,72 @@ class BlogPostService {
   ): Promise<PaginatedResponse<BlogPost>> {
     const offset = (page - 1) * limit;
 
-    let whereClause = userId ? "WHERE p.user_id = $1" : "";
-    let countParams: (string | number)[] = userId ? [userId] : [];
+    const whereConditions: string[] = [];
+    const params: (string | number)[] = [];
 
-    if (searchQuery) {
-      whereClause += whereClause ? " AND" : "WHERE";
-      whereClause += " (p.title ILIKE $2 OR p.content ILIKE $2)";
-      countParams = userId ? [userId, `%${searchQuery}%`] : [`%${searchQuery}%`];
+    if (userId) {
+      params.push(userId);
+      whereConditions.push(`p.user_id = $${params.length}`);
     }
 
+    const search = searchQuery?.trim();
+
+    if (search) {
+      params.push(`%${search}%`);
+      const searchParam = `$${params.length}`;
+
+      whereConditions.push(`
+      (
+        p.title ILIKE ${searchParam}
+      )
+    `);
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(" AND ")}`
+        : "";
+
     const countResult = await queryOne<{ total: string }>(
-      `SELECT COUNT(*) AS total
-     FROM posts p
-     ${whereClause}`,
-      countParams,
+      `
+      SELECT COUNT(*)
+      AS total
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN users u ON p.user_id = u.id
+      ${whereClause}
+    `,
+      params,
     );
 
     const total = Number(countResult?.total ?? 0);
 
-    let dataParams: (string | number)[] = userId ? [userId, limit, offset] : [limit, offset];
+    const dataParams = [...params, limit, offset];
 
-    if (searchQuery) {
-      dataParams = userId ? [userId, `%${searchQuery}%`, limit, offset] : [`%${searchQuery}%`, limit, offset];
-    }
+    const limitParam = `$${params.length + 1}`;
+    const offsetParam = `$${params.length + 2}`;
 
     const posts = await query<BlogPost>(
       `
-    SELECT
-      p.id,
-      p.user_id,
-      p.category_id,
-      c.name AS category_name,
-      CONCAT(u.first_name, ' ', u.last_name) AS user_name,
-      p.title,
-      p.content,
-      p.excerpt,
-      p.tags,
-      p.created_at,
-      p.updated_at
-    FROM posts p
-    LEFT JOIN categories c ON p.category_id = c.id
-    LEFT JOIN users u ON p.user_id = u.id
-    ${whereClause}
-    ORDER BY p.id DESC
-    LIMIT $${userId ? 2 : 1}
-    OFFSET $${userId ? 3 : 2}
+      SELECT
+        p.id,
+        p.user_id,
+        p.category_id,
+        c.name AS category_name,
+        CONCAT(u.first_name, ' ', u.last_name) AS user_name,
+        p.title,
+        p.content,
+        p.excerpt,
+        p.tags,
+        p.created_at,
+        p.updated_at
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN users u ON p.user_id = u.id
+      ${whereClause}
+      ORDER BY p.id DESC
+      LIMIT ${limitParam}
+      OFFSET ${offsetParam}
     `,
       dataParams,
     );

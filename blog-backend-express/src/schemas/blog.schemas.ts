@@ -35,6 +35,7 @@ export const blogUpdateSchema = blogCreateSchema.partial();
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
+  search: z.string().trim().optional(),
 });
 
 export type ICreateBlogPost = z.infer<typeof blogCreateSchema>;
