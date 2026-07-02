@@ -26,6 +26,13 @@ export interface RefreshResponse {
   refreshToken: string;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface User {
   id: number;
   first_name: string;
