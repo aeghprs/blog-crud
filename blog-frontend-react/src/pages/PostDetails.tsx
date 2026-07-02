@@ -48,6 +48,19 @@ export default function PostDetails() {
         dangerouslySetInnerHTML={{ __html: blogPost.content }}
       />
 
+      {blogPost.tags?.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {blogPost.tags.map((tag: string) => (
+            <span
+              key={tag}
+              className="rounded-full bg-clay-100 px-2.5 py-1 text-xs font-medium text-clay-700 dark:bg-clay-900/40 dark:text-clay-300"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       <Button
         variant="ghost"
         onClick={() => navigate(-1)}

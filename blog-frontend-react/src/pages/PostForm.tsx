@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 
 import { fetchCategories } from "api/cat.api";
-import { createNewBlog } from "api/blogs.api";
+import { createNewBlog, getBlogPostById, updateBlog } from "api/blogs.api";
 
 import { Button, SelectField, TagInputField, TextField } from "components/ui";
 import {
@@ -33,6 +34,7 @@ export default function PostForm() {
   const isEdit = !!id;
   const navigate = useNavigate();
   useAuthStore((state) => state.user);
+  const postId = Number(id);
 
   const {
     register,
@@ -51,14 +53,43 @@ export default function PostForm() {
     },
   });
 
+  const { data: existingPost, isLoading: isLoadingPost } = useQuery({
+    queryKey: ["blogPostById", id],
+    queryFn: () => getBlogPostById(postId),
+    enabled: isEdit && !!id,
+  });
+
+  useEffect(() => {
+    if (isEdit && existingPost) {
+      reset({
+        title: existingPost.title ?? "",
+        category_id: Number(existingPost.category_id ?? 0),
+        content: existingPost.content ?? EMPTY_CONTENT_COPY,
+        excerpt: existingPost.excerpt ?? "",
+        tags: Array.isArray(existingPost.tags) ? existingPost.tags : [],
+      });
+    }
+  }, [existingPost, isEdit, reset]);
+
   const { mutate, isPending } = useMutation({
-    mutationFn: createNewBlog,
+    mutationFn: (values: PostFormValues) =>
+      isEdit ? updateBlog(postId, values) : createNewBlog(values),
     onSuccess: async ({ message }) => {
-      toast.success(message ?? "Category created successfully.");
+      toast.success(
+        message ??
+          (isEdit
+            ? "Blog post updated successfully."
+            : "Blog post created successfully."),
+      );
       queryClient.invalidateQueries({ queryKey: ["blogs"] });
 
-      reset();
-      navigate('/dashboard')
+      if (isEdit) {
+        queryClient.invalidateQueries({ queryKey: ["blogPostById", id] });
+        navigate(`/posts/${id}`);
+      } else {
+        reset();
+        navigate("/dashboard");
+      }
     },
     onError: (err: unknown) => {
       toast.error(getErrorMessage(err));
@@ -66,7 +97,6 @@ export default function PostForm() {
   });
 
   const onSubmit = (values: PostFormValues) => {
-    console.log;
     const { category_id, ...payload } = values;
     mutate({
       ...payload,
@@ -79,8 +109,8 @@ export default function PostForm() {
     queryFn: fetchCategories,
   });
 
-  if (isLoading) {
-    return <Loader label="Fetching categories" />;
+  if (isLoading || (isEdit && isLoadingPost)) {
+    return <Loader label={isEdit ? "Loading post" : "Fetching categories"} />;
   }
 
   const CATEGORY_OPTIONS =
