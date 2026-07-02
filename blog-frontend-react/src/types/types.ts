@@ -56,3 +56,11 @@ export interface PostListItem {
   user_name: string;
   created_at: string;
 }
+
+export type PostFormValues = {
+  title: string;
+  category_id: number;
+  content: string;
+  excerpt: string;
+  tags: string[];
+};

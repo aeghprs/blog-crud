@@ -8,10 +8,10 @@ import PostListSection from "components/Posts/PostListSection";
 import { usePagination } from "hook/usePagination";
 
 export default function Posts() {
-  const { limit, page, setPage } = usePagination();
+  const { limit, page, setPage, searchQuery, setSearchQuery } = usePagination();
 
   const { data: postsData, isLoading: isPostsLoading } = useQuery({
-    queryKey: ["blogs", page, limit],
+    queryKey: ["blogs", page, limit, searchQuery],
     queryFn: fetchAllBlogs,
   });
 
@@ -26,6 +26,8 @@ export default function Posts() {
         page={page}
         setPage={setPage}
         totalPages={postsData.pagination.totalPages}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
     </div>
   );

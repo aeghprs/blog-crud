@@ -12,6 +12,7 @@ import Login from "pages/Login";
 import NotFound from "pages/NotFound";
 import Posts from "pages/Posts";
 import PostDetails from "pages/PostDetails";
+import PostForm from "pages/PostForm";
 import Register from "pages/Register";
 
 import { useThemeStore } from "store/themeStore";
@@ -38,6 +39,9 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/category" element={<Category />} />
+
+          <Route path="/posts/new" element={<PostForm />} />
+          <Route path="/posts/:id/edit" element={<PostForm />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

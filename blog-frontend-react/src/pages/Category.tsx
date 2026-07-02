@@ -8,6 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { deleteCategory, fetchCategories } from "api/cat.api";
 
@@ -90,7 +91,7 @@ const Category = () => {
           </h1>
         </div>
         <button
-          onClick={() => openCreateModal('create')}
+          onClick={() => openCreateModal("create")}
           className="flex items-center gap-1.5 rounded-full bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50 transition hover:bg-ink-800 dark:bg-clay-500 dark:text-ink-950 dark:hover:bg-clay-400"
         >
           <Plus size={15} /> Add category
@@ -150,9 +151,10 @@ const Category = () => {
                         variant="ghost"
                         size="icon"
                         type="button"
-                        onClick={() => { 
-                            setModalOpen('delete')
-                            setSelectedItem(cat) }}
+                        onClick={() => {
+                          setModalOpen("delete");
+                          setSelectedItem(cat);
+                        }}
                         className="rounded-md p-1.5 text-ink-500 hover:bg-clay-500/10 hover:text-clay-600 dark:text-ink-400 dark:hover:text-clay-400"
                         aria-label={`Delete ${cat.name}`}
                       >
@@ -194,15 +196,21 @@ const Category = () => {
           <ChevronRight size={18} />
         </Button>
       </div>
+      <Link
+        to="/posts/new"
+        className="text-underline text-xs hover:text-clay-500"
+      >
+        Back to blog
+      </Link>
 
       <CategoryModal
-        open={modalOpen === 'create' || modalOpen === 'edit'}
+        open={modalOpen === "create" || modalOpen === "edit"}
         category={selectedItem}
         onClose={closeModal}
       />
 
       <ConfirmDialog
-        open={modalOpen === 'delete'}
+        open={modalOpen === "delete"}
         title="Delete this category?"
         message={`"${selectedItem?.name}" will be permanently removed. Are you sure you want to delete this category?`}
         busy={isPending}
