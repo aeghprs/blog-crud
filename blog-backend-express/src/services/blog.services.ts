@@ -57,25 +57,47 @@ class BlogPostService {
   public async getAllBlogPosts(
     page: number,
     limit: number,
-    userId: number,
+    userId?: number,
   ): Promise<PaginatedResponse<BlogPost>> {
     const offset = (page - 1) * limit;
 
+    const whereClause = userId ? "WHERE p.user_id = $1" : "";
+    const countParams = userId ? [userId] : [];
+
     const countResult = await queryOne<{ total: string }>(
-      "SELECT COUNT(*) as total FROM posts WHERE user_id = $1",
-      [userId],
+      `SELECT COUNT(*) AS total
+     FROM posts p
+     ${whereClause}`,
+      countParams,
     );
 
     const total = Number(countResult?.total ?? 0);
 
+    const dataParams = userId ? [userId, limit, offset] : [limit, offset];
+
     const posts = await query<BlogPost>(
-      `SELECT p.id, p.user_id, p.category_id, c.name as category_name, p.title, p.content, p.excerpt, p.tags, p.created_at, p.updated_at 
-       FROM posts p
-       LEFT JOIN categories c ON p.category_id = c.id
-       WHERE p.user_id = $3 
-       ORDER BY p.id DESC 
-       LIMIT $1 OFFSET $2`,
-      [limit, offset, userId],
+      `
+    SELECT
+      p.id,
+      p.user_id,
+      p.category_id,
+      c.name AS category_name,
+      CONCAT(u.first_name, ' ', u.last_name) AS user_name,
+      p.title,
+      p.content,
+      p.excerpt,
+      p.tags,
+      p.created_at,
+      p.updated_at
+    FROM posts p
+    LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN users u ON p.user_id = u.id
+    ${whereClause}
+    ORDER BY p.id DESC
+    LIMIT $${userId ? 2 : 1}
+    OFFSET $${userId ? 3 : 2}
+    `,
+      dataParams,
     );
 
     return {
@@ -91,9 +113,10 @@ class BlogPostService {
 
   public async getBlogPostById(id: string): Promise<BlogPost | null> {
     return queryOne<BlogPost>(
-      `SELECT p.id, p.user_id, p.category_id, c.name as category_name, p.title, p.content, p.excerpt, p.tags, p.created_at, p.updated_at 
+      `SELECT p.id, p.user_id, p.category_id, c.name as category_name, p.title, p.content, p.excerpt, p.tags, p.created_at, p.updated_at , CONCAT(u.first_name, ' ', u.last_name) as user_name
        FROM posts p
        LEFT JOIN categories c ON p.category_id = c.id
+       LEFT JOIN users u ON p.user_id = u.id
        WHERE p.id = $1`,
       [id],
     );

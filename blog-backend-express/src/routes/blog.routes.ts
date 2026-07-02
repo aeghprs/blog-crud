@@ -17,6 +17,9 @@ import {
 const router = Router();
 const blogController = new BlogPostController();
 
+router.get("/all", blogController.getAllBlogPosts);
+router.get("/:id", blogController.getBlogPost);
+
 router.use(verifyJWT);
 
 router.get(
