@@ -1,4 +1,5 @@
 import { PenLine, LogOut } from "lucide-react";
+import React, { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import ThemeToggle from "components/theme/ThemeToggle";
@@ -6,7 +7,7 @@ import { Button } from "components/ui";
 
 import { useAuthStore } from "store/authStore";
 
-export default function Navbar() {
+const Navbar = React.memo(() => {
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
   const logout = useAuthStore((state) => state.logout);
@@ -83,4 +84,6 @@ export default function Navbar() {
       </div>
     </header>
   );
-}
+});
+
+export default Navbar;

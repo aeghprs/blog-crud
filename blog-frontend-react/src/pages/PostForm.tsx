@@ -15,6 +15,8 @@ import {
 import { RichTextEditor } from "components/TextEditor/RichTextEditor";
 import Loader from "components/ui/Loader";
 
+import ErrorPage from "pages/ErrorPage";
+
 import queryClient from "constants/queryClient";
 
 import { blogCreateSchema } from "schema/blog";
@@ -53,7 +55,13 @@ export default function PostForm() {
     },
   });
 
-  const { data: existingPost, isLoading: isLoadingPost } = useQuery({
+  const {
+    data: existingPost,
+    isLoading: isLoadingPost,
+    isError: isPostError,
+    error: postError,
+    refetch: refetchPost,
+  } = useQuery({
     queryKey: ["blogPostById", id],
     queryFn: () => getBlogPostById(postId),
     enabled: isEdit && !!id,
@@ -104,13 +112,41 @@ export default function PostForm() {
     });
   };
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError: isCategoriesError,
+    error: categoriesError,
+    refetch: refetchCategories,
+  } = useQuery({
     queryKey: ["categories", 1, 10],
     queryFn: fetchCategories,
   });
 
   if (isLoading || (isEdit && isLoadingPost)) {
     return <Loader label={isEdit ? "Loading post" : "Fetching categories"} />;
+  }
+
+  if (isCategoriesError) {
+    return (
+      <ErrorPage
+        title="We couldn't load the form"
+        message={getErrorMessage(categoriesError)}
+        onRetry={() => refetchCategories()}
+        retryLabel="Retry loading"
+      />
+    );
+  }
+
+  if (isEdit && isPostError) {
+    return (
+      <ErrorPage
+        title="We couldn't load this post"
+        message={getErrorMessage(postError)}
+        onRetry={() => refetchPost()}
+        retryLabel="Retry loading"
+      />
+    );
   }
 
   const CATEGORY_OPTIONS =

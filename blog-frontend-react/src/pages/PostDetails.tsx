@@ -7,13 +7,23 @@ import { getBlogPostById } from "api/blogs.api";
 import { Button } from "components/ui";
 import Loader from "components/ui/Loader";
 
+import ErrorPage from "pages/ErrorPage";
+
+import { getErrorMessage } from "utils/errorHandler";
+
 export default function PostDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   if (!id) return <p>Invalid post ID</p>;
 
-  const { data: blogPost, isLoading } = useQuery({
+  const {
+    data: blogPost,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["blogPostById", id],
     queryFn: () => getBlogPostById(Number(id)),
     enabled: !!id,
@@ -21,6 +31,17 @@ export default function PostDetails() {
 
   if (isLoading) {
     return <Loader label="Loading post..." />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorPage
+        title="We couldn't load this post"
+        message={getErrorMessage(error)}
+        onRetry={() => refetch()}
+        retryLabel="Retry loading"
+      />
+    );
   }
 
   return (

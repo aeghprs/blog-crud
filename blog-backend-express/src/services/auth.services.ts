@@ -142,8 +142,6 @@ class AuthService {
       [id],
     );
 
-    console.log("Fetched user:", user);
-
     if (!user) {
       throw new Error("USER_NOT_FOUND");
     }

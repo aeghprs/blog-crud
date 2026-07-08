@@ -11,6 +11,8 @@ import { PaginationBar } from "components/Shared/PaginationBar";
 import { Button } from "components/ui";
 import Loader from "components/ui/Loader";
 
+import ErrorPage from "pages/ErrorPage";
+
 import queryClient from "constants/queryClient";
 
 import { usePagination } from "hook/usePagination";
@@ -60,13 +62,30 @@ const Category = () => {
     mutate(selectedItem.id);
   };
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["categories", page, limit],
     queryFn: fetchCategories,
   });
 
   if (isLoading) {
     return <Loader label="Fetching categories" />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorPage
+        title="We couldn't load categories"
+        message={getErrorMessage(error)}
+        onRetry={() => refetch()}
+        retryLabel="Retry loading"
+      />
+    );
   }
 
   const {

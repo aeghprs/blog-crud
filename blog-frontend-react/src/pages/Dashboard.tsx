@@ -7,6 +7,8 @@ import Loader from "components/ui/Loader";
 import PostListSection from "components/Posts/PostListSection";
 import ConfirmDialog from "components/Shared/CofirmationDialog";
 
+import ErrorPage from "pages/ErrorPage";
+
 import queryClient from "constants/queryClient";
 
 import { usePagination } from "hook/usePagination";
@@ -23,7 +25,13 @@ const Dashboard = () => {
   const [pendingDelete, setPendingDelete] = useState<PostListItem | null>(null);
   const { limit, page, setPage, searchQuery, setSearchQuery } = usePagination();
 
-  const { data: postsData, isLoading: isPostsLoading } = useQuery({
+  const {
+    data: postsData,
+    isLoading: isPostsLoading,
+    isError: isPostsError,
+    error: postsError,
+    refetch: refetchPosts,
+  } = useQuery({
     queryKey: ["posts", page, limit, searchQuery],
     queryFn: fetchBlogs,
   });
@@ -49,6 +57,17 @@ const Dashboard = () => {
 
   if (isPostsLoading) {
     return <Loader label="Loading" />;
+  }
+
+  if (isPostsError) {
+    return (
+      <ErrorPage
+        title="We couldn't load your dashboard"
+        message={getErrorMessage(postsError)}
+        onRetry={() => refetchPosts()}
+        retryLabel="Retry loading"
+      />
+    );
   }
 
   return (

@@ -11,8 +11,6 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 types.setTypeParser(1082, (val: string) => val);
 types.setTypeParser(1184, (val: string) => val);
 
-console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_USER, process.env.DB_PASSWORD, process.env.DB_NAME);
-
 // Create connection pool
 export const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
